@@ -1,0 +1,2 @@
+conkitty-idea-plugin
+====================
