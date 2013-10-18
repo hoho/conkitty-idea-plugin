@@ -1,0 +1,29 @@
+{
+  parserClass="com.hoho.conkitty.parser.ConkittyParser"
+  stubParserClass="com.hoho.conkitty.parser.GeneratedParserUtilBase"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Conkitty"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.hoho.conkitty.psi"
+  psiImplPackage="com.hoho.conkitty.psi.impl"
+
+  elementTypeHolderClass="com.hoho.conkitty.psi.ConkittyTypes"
+  elementTypeClass="com.hoho.conkitty.psi.ConkittyElementType"
+  tokenTypeClass="com.hoho.conkitty.psi.ConkittyTokenType"
+
+  tokens=[
+    string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+    name="regexp:\p{Alpha}\w*"
+    identifier="regexp:\p{Alpha}\w*"
+  ]
+}
+
+root ::= conkitty_template *
+
+private conkitty_template ::= name identifier* suite
+
+private suite ::= INDENT statement+ DEDENT CRLF
+
+private statement ::= (css | string | javascript | command) CRLF
