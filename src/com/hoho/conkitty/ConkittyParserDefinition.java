@@ -4,7 +4,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.lang.ParserDefinition;
 import com.intellij.lang.PsiParser;
-import com.intellij.lexer.FlexAdapter;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.FileViewProvider;
@@ -18,7 +17,6 @@ import com.hoho.conkitty.psi.ConkittyFile;
 import com.hoho.conkitty.psi.ConkittyTypes;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Reader;
 
 public class ConkittyParserDefinition implements ParserDefinition {
     public static final TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
@@ -29,7 +27,7 @@ public class ConkittyParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public Lexer createLexer(Project project) {
-        return new FlexAdapter(new ConkittyLexer((Reader) null));
+        return new ConkittyLexer();
     }
 
     @NotNull

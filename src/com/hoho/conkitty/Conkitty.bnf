@@ -12,12 +12,6 @@
   elementTypeHolderClass="com.hoho.conkitty.psi.ConkittyTypes"
   elementTypeClass="com.hoho.conkitty.psi.ConkittyElementType"
   tokenTypeClass="com.hoho.conkitty.psi.ConkittyTokenType"
-
-  tokens=[
-    string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
-    name="regexp:\p{Alpha}\w*"
-    identifier="regexp:\p{Alpha}\w*"
-  ]
 }
 
 root ::= conkitty_template *
@@ -26,4 +20,37 @@ private conkitty_template ::= name identifier* suite
 
 private suite ::= INDENT statement+ DEDENT CRLF
 
-private statement ::= (css | string | javascript | command) CRLF
+private statement ::= (css | string | javascript | cmd | comment) CRLF
+
+private expression ::= string | javascript | payload_name
+
+private attr_cmd_name ::= "ATTR"
+private call_cmd_name ::= "CALL"
+private choose_cmd_name ::= "CHOOSE"
+private each_cmd_name ::= "EACH"
+private insert_cmd_name ::= "INSERT"
+private set_cmd_name ::= "SET"
+private test_cmd_name ::= "TEST"
+private with_cmd_name ::= "WITH"
+
+private choose_when_name ::= "WHEN"
+private choose_otherwise_name ::= "OTHERWISE"
+private with_else_name ::= "ELSE"
+
+private payload_name ::= "PAYLOAD"
+
+keyword ::= attr_cmd_name | call_cmd_name | choose_cmd_name | each_cmd_name |
+            insert_cmd_name | set_cmd_name | test_cmd_name | with_cmd_name |
+            choose_when_name | choose_otherwise_name | with_else_name | payload_name
+
+private cmd ::= attr_cmd | call_cmd | choose_cmd | each_cmd |
+                insert_cmd | set_cmd | test_cmd | with_cmd
+
+private attr_cmd ::= attr_cmd_name expression expression CRLF
+private call_cmd ::= call_cmd_name name expression* (suite | CRLF)
+private choose_cmd ::= choose_cmd_name CRLF (choose_when_name expression CRLF suite)+ (choose_otherwise_name CRLF suite)?
+private each_cmd ::= each_cmd_name identifier? identifier? expression CRLF
+private insert_cmd ::= insert_cmd_name expression CRLF
+private set_cmd ::= set_cmd_name identifier (expression | (CRLF suite))
+private test_cmd ::= test_cmd_name expression CRLF suite
+private with_cmd ::= with_cmd_name identifier expression CRLF suite (with_else_name CRLF suite)?
