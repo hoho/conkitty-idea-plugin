@@ -18,14 +18,16 @@ public class ConkittySyntaxHighlighter extends SyntaxHighlighterBase {
     public static final TextAttributesKey TAG = createTextAttributesKey("CONKITTY_TAG", DefaultLanguageHighlighterColors.CLASS_NAME);
     public static final TextAttributesKey VARIABLE_NAME = createTextAttributesKey("CONKITTY_VARIABLE", DefaultLanguageHighlighterColors.INSTANCE_FIELD);
     public static final TextAttributesKey STRING = createTextAttributesKey("CONKITTY_STRING", DefaultLanguageHighlighterColors.STRING);
+    public static final TextAttributesKey JAVASCRPT = createTextAttributesKey("CONKITTY_JAVASCRIPT", DefaultLanguageHighlighterColors.NUMBER);
     public static final TextAttributesKey COMMENT = createTextAttributesKey("CONKITTY_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
-    public static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("CONKITTY_BAD_CHARACTER", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE);
+    public static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("CONKITTY_BAD_CHARACTER", DefaultLanguageHighlighterColors.DOC_COMMENT);
 
     private static final TextAttributesKey[] KEYWORDS = new TextAttributesKey[]{KEYWORD};
     private static final TextAttributesKey[] TEMPLATE_NAMES = new TextAttributesKey[]{TEMPLATE_NAME};
     private static final TextAttributesKey[] TAGS = new TextAttributesKey[]{TAG};
     private static final TextAttributesKey[] VARIABLE_NAMES = new TextAttributesKey[]{VARIABLE_NAME};
     private static final TextAttributesKey[] STRINGS = new TextAttributesKey[]{STRING};
+    private static final TextAttributesKey[] JAVASCRIPTS = new TextAttributesKey[]{JAVASCRPT};
     private static final TextAttributesKey[] COMMENTS = new TextAttributesKey[]{COMMENT};
     private static final TextAttributesKey[] BAD_CHARACTERS = new TextAttributesKey[]{BAD_CHARACTER};
     private static final TextAttributesKey[] EMPTY = new TextAttributesKey[0];
@@ -39,16 +41,20 @@ public class ConkittySyntaxHighlighter extends SyntaxHighlighterBase {
     @NotNull
     @Override
     public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
-        if (tokenType.equals(ConkittyTypes.NAME)) {
+        if (tokenType.equals(ConkittyTypes.TEMPLATE_NAME)) {
             return TEMPLATE_NAMES;
         } else if (tokenType.equals(ConkittyTypes.KEYWORD)) {
             return KEYWORDS;
-        } else if (tokenType.equals(ConkittyTypes.IDENTIFIER)) {
+        } else if (tokenType.equals(ConkittyTypes.VARIABLE)) {
             return VARIABLE_NAMES;
+        } else if (tokenType.equals(ConkittyTypes.JAVASCRIPT)) {
+            return JAVASCRIPTS;
         } else if (tokenType.equals(ConkittyTypes.COMMENT)) {
             return COMMENTS;
         } else if (tokenType.equals(ConkittyTypes.STRING)) {
             return STRINGS;
+        } else if (tokenType.equals(ConkittyTypes.CSS)) {
+            return TAGS;
         } else if (tokenType.equals(TokenType.BAD_CHARACTER)) {
             return BAD_CHARACTERS;
         } else {

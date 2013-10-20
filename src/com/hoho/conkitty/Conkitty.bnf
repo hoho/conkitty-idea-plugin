@@ -16,13 +16,18 @@
 
 root ::= conkitty_template *
 
-private conkitty_template ::= name identifier* suite
+private conkitty_template ::= template_name variable* suite
 
 private suite ::= INDENT statement+ DEDENT CRLF
 
-private statement ::= (css | string | javascript | cmd | comment) CRLF
+private statement ::= (css | string | js | cmd | comment) CRLF
 
-private expression ::= string | javascript | payload_name
+private expression ::= string | js | payload_name
+
+private js ::= javascript_begin javascript javascript_end
+
+javascript_begin ::= "("
+javascript_end ::= ")"
 
 private attr_cmd_name ::= "ATTR"
 private call_cmd_name ::= "CALL"
@@ -47,10 +52,10 @@ private cmd ::= attr_cmd | call_cmd | choose_cmd | each_cmd |
                 insert_cmd | set_cmd | test_cmd | with_cmd
 
 private attr_cmd ::= attr_cmd_name expression expression CRLF
-private call_cmd ::= call_cmd_name name expression* (suite | CRLF)
+private call_cmd ::= call_cmd_name template_name expression* (suite | CRLF)
 private choose_cmd ::= choose_cmd_name CRLF (choose_when_name expression CRLF suite)+ (choose_otherwise_name CRLF suite)?
-private each_cmd ::= each_cmd_name identifier? identifier? expression CRLF
+private each_cmd ::= each_cmd_name variable? variable? expression CRLF
 private insert_cmd ::= insert_cmd_name expression CRLF
-private set_cmd ::= set_cmd_name identifier (expression | (CRLF suite))
+private set_cmd ::= set_cmd_name variable (expression | (CRLF suite))
 private test_cmd ::= test_cmd_name expression CRLF suite
-private with_cmd ::= with_cmd_name identifier expression CRLF suite (with_else_name CRLF suite)?
+private with_cmd ::= with_cmd_name variable expression CRLF suite (with_else_name CRLF suite)?
