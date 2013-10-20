@@ -18,7 +18,7 @@ public class ConkittySyntaxHighlighter extends SyntaxHighlighterBase {
     public static final TextAttributesKey TAG = createTextAttributesKey("CONKITTY_TAG", DefaultLanguageHighlighterColors.CLASS_NAME);
     public static final TextAttributesKey VARIABLE_NAME = createTextAttributesKey("CONKITTY_VARIABLE", DefaultLanguageHighlighterColors.INSTANCE_FIELD);
     public static final TextAttributesKey STRING = createTextAttributesKey("CONKITTY_STRING", DefaultLanguageHighlighterColors.STRING);
-    public static final TextAttributesKey JAVASCRPT = createTextAttributesKey("CONKITTY_JAVASCRIPT", DefaultLanguageHighlighterColors.NUMBER);
+    public static final TextAttributesKey JAVASCRIPT = createTextAttributesKey("CONKITTY_JAVASCRIPT", DefaultLanguageHighlighterColors.NUMBER);
     public static final TextAttributesKey COMMENT = createTextAttributesKey("CONKITTY_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("CONKITTY_BAD_CHARACTER", DefaultLanguageHighlighterColors.DOC_COMMENT);
 
@@ -27,7 +27,7 @@ public class ConkittySyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] TAGS = new TextAttributesKey[]{TAG};
     private static final TextAttributesKey[] VARIABLE_NAMES = new TextAttributesKey[]{VARIABLE_NAME};
     private static final TextAttributesKey[] STRINGS = new TextAttributesKey[]{STRING};
-    private static final TextAttributesKey[] JAVASCRIPTS = new TextAttributesKey[]{JAVASCRPT};
+    private static final TextAttributesKey[] JAVASCRIPTS = new TextAttributesKey[]{JAVASCRIPT};
     private static final TextAttributesKey[] COMMENTS = new TextAttributesKey[]{COMMENT};
     private static final TextAttributesKey[] BAD_CHARACTERS = new TextAttributesKey[]{BAD_CHARACTER};
     private static final TextAttributesKey[] EMPTY = new TextAttributesKey[0];
