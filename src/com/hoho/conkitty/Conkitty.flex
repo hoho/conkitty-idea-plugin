@@ -29,15 +29,15 @@ import static com.hoho.conkitty.psi.ConkittyTypes.*;
   protected abstract void readJavaScript(int state) throws java.io.IOException;
 %}
 
-CRLF = \r | \n | \r\n
+CRLF = (\r | \n | \r\n)+
 WHITE_SPACE = [\ \t\f]+
 IDENTIFIER = [a-zA-Z_][a-zA-Z_0-9]*
 STRING = ('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 KEYWORD = "ATTR"|"CALL"|"CHOOSE"|"EACH"|"INSERT"|"SET"|"TEST"|"WITH"|"WHEN"|"OTHERWISE"|"ELSE"|"PAYLOAD"
-COMMENT = "//" [^\r\n]* {CRLF} | "/*" [^*] ~"*/" | "/*" "*"+ "/"
-JAVASCRIPT = . | {WHITE_SPACE} | {CRLF} | {COMMENT} | {STRING}
+COMMENT = [\ \t\f]* ("//" [^\r\n]* | "/*" [^*] ~"*/" | "/*" "*"+ "/") [\ \t\f]*
 CSS = {IDENTIFIER}
 ATTR = @[a-zA-Z_-]+
+JAVASCRIPT = . | {WHITE_SPACE} | {CRLF} | {COMMENT} | {STRING} | {CSS} | {ATTR}
 
 
 %state IN_COMMENT
@@ -53,7 +53,7 @@ ATTR = @[a-zA-Z_-]+
 <YYINITIAL>          {IDENTIFIER}                    { yybegin(IN_VAR_DECL); return TEMPLATE_NAME; }
 
 <IN_VAR_DECL>        {IDENTIFIER}                    { return VARIABLE; }
-<IN_VAR_DECL>        {CRLF}                          { yybegin(IN_TEMPLATE); return com.intellij.psi.TokenType.WHITE_SPACE; }
+<IN_VAR_DECL>        {CRLF}                          { yybegin(IN_TEMPLATE); return CRLF; }
 
 <IN_JAVASCRIPT>      {JAVASCRIPT}                    { yybegin(IN_JAVASCRIPT2); readJavaScript(afterJavaScript); return JAVASCRIPT; }
 <IN_JAVASCRIPT2>     {JAVASCRIPT}                    { return JAVASCRIPT; }
@@ -77,6 +77,6 @@ ATTR = @[a-zA-Z_-]+
 <IN_TEMPLATE>        {CSS}                           { return CSS; }
 <IN_TEMPLATE>        {ATTR}                          { return CSS; }
 
-                     {WHITE_SPACE}                   { return com.intellij.psi.TokenType.WHITE_SPACE; }
-                     {CRLF}                          { return com.intellij.psi.TokenType.WHITE_SPACE; }
+                     {CRLF}                          { return CRLF; }
+                     {WHITE_SPACE}                   { return WHITE_SPACE; }
                      .                               { return com.intellij.psi.TokenType.BAD_CHARACTER; }

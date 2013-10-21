@@ -16,46 +16,42 @@
 
 root ::= conkitty_template *
 
-private conkitty_template ::= template_name variable* suite
+KEYWORD
 
-private suite ::= INDENT statement+ DEDENT CRLF
+private conkitty_template ::= (COMMENT* WHITE_SPACE* CRLF)* TEMPLATE_NAME VARIABLE* suite
 
-private statement ::= (css | string | js | cmd | comment) CRLF
+private suite ::= CRLF (INDENT statement+ DEDENT)?
 
-private expression ::= string | js | payload_name
+private statement ::= (CSS | expression | cmd) COMMENT* CRLF
 
-private js ::= javascript_begin javascript javascript_end
+private expression ::= COMMENT* (STRING | js | "PAYLOAD") COMMENT*
 
-javascript_begin ::= "("
-javascript_end ::= ")"
+private js ::= JAVASCRIPT_BEGIN JAVASCRIPT JAVASCRIPT_END
 
-private attr_cmd_name ::= "ATTR"
-private call_cmd_name ::= "CALL"
-private choose_cmd_name ::= "CHOOSE"
-private each_cmd_name ::= "EACH"
-private insert_cmd_name ::= "INSERT"
-private set_cmd_name ::= "SET"
-private test_cmd_name ::= "TEST"
-private with_cmd_name ::= "WITH"
+JAVASCRIPT_BEGIN ::= "("
+JAVASCRIPT_END ::= ")"
 
-private choose_when_name ::= "WHEN"
-private choose_otherwise_name ::= "OTHERWISE"
-private with_else_name ::= "ELSE"
+private attr_cmd_name ::= "ATTR" COMMENT* WHITE_SPACE COMMENT*
+private call_cmd_name ::= "CALL" COMMENT* WHITE_SPACE COMMENT*
+private choose_cmd_name ::= "CHOOSE" COMMENT*
+private each_cmd_name ::= "EACH" COMMENT* WHITE_SPACE COMMENT*
+private insert_cmd_name ::= "INSERT" COMMENT* WHITE_SPACE COMMENT*
+private set_cmd_name ::= "SET" COMMENT* WHITE_SPACE COMMENT*
+private test_cmd_name ::= "TEST" COMMENT* WHITE_SPACE COMMENT*
+private with_cmd_name ::= "WITH" COMMENT* WHITE_SPACE COMMENT*
 
-private payload_name ::= "PAYLOAD"
-
-keyword ::= attr_cmd_name | call_cmd_name | choose_cmd_name | each_cmd_name |
-            insert_cmd_name | set_cmd_name | test_cmd_name | with_cmd_name |
-            choose_when_name | choose_otherwise_name | with_else_name | payload_name
+private choose_when_name ::= "WHEN" COMMENT* WHITE_SPACE COMMENT*
+private choose_otherwise_name ::= "OTHERWISE" COMMENT*
+private with_else_name ::= "ELSE" COMMENT*
 
 private cmd ::= attr_cmd | call_cmd | choose_cmd | each_cmd |
                 insert_cmd | set_cmd | test_cmd | with_cmd
 
-private attr_cmd ::= attr_cmd_name expression expression CRLF
-private call_cmd ::= call_cmd_name template_name expression* (suite | CRLF)
-private choose_cmd ::= choose_cmd_name CRLF (choose_when_name expression CRLF suite)+ (choose_otherwise_name CRLF suite)?
-private each_cmd ::= each_cmd_name variable? variable? expression CRLF
-private insert_cmd ::= insert_cmd_name expression CRLF
-private set_cmd ::= set_cmd_name variable (expression | (CRLF suite))
-private test_cmd ::= test_cmd_name expression CRLF suite
-private with_cmd ::= with_cmd_name variable expression CRLF suite (with_else_name CRLF suite)?
+private attr_cmd ::= attr_cmd_name expression WHITE_SPACE expression
+private call_cmd ::= call_cmd_name TEMPLATE_NAME (WHITE_SPACE expression)* suite?
+private choose_cmd ::= choose_cmd_name CRLF INDENT (choose_when_name expression suite CRLF)+ (choose_otherwise_name suite CRLF)? DEDENT
+private each_cmd ::= each_cmd_name (VARIABLE WHITE_SPACE)? (VARIABLE WHITE_SPACE)? expression suite
+private insert_cmd ::= insert_cmd_name expression
+private set_cmd ::= set_cmd_name VARIABLE ((COMMENT* WHITE_SPACE expression) | suite)
+private test_cmd ::= test_cmd_name expression suite
+private with_cmd ::= with_cmd_name VARIABLE COMMENT* WHITE_SPACE expression suite (CRLF with_else_name suite)?

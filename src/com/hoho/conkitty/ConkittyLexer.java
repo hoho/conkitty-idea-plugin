@@ -9,6 +9,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public final class ConkittyLexer extends LookAheadLexer {
@@ -46,9 +47,7 @@ public final class ConkittyLexer extends LookAheadLexer {
 
     @Override
     protected void lookAhead(Lexer baseLexer) {
-        final IElementType type = baseLexer.getTokenType();
-
-
+        IElementType type = baseLexer.getTokenType();
 
         advanceAs(baseLexer, type);
     }
@@ -56,5 +55,4 @@ public final class ConkittyLexer extends LookAheadLexer {
     private static void setState(Lexer baseLexer, int state) {
         ((FlexAdapter)baseLexer).getFlex().yybegin(state);
     }
-
 }

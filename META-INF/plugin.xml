@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.hoho.conkitty</id>
   <name>Conkitty</name>
-  <version>1.0</version>
+  <version>0.0.0</version>
   <depends>com.intellij.modules.lang</depends>
   <vendor email="dakota@brokenpipe.ru" url="https://github.com/hoho">Marat Abdullin</vendor>
 
