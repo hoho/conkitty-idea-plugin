@@ -39,5 +39,6 @@
       <fileTypeFactory implementation="com.hoho.conkitty.ConkittyFileTypeFactory" />
       <!--<lang.parserDefinition language="Conkitty" implementationClass="com.hoho.conkitty.ConkittyParserDefinition" />-->
       <lang.syntaxHighlighterFactory key="Conkitty" implementationClass="com.hoho.conkitty.ConkittySyntaxHighlighterFactory" />
+      <colorSettingsPage implementation="com.hoho.conkitty.ConkittyColorSettingsPage" />
   </extensions>
 </idea-plugin>
