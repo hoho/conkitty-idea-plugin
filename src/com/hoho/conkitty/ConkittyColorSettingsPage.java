@@ -45,8 +45,8 @@ public class ConkittyColorSettingsPage implements ColorSettingsPage {
                 "            WHEN (arg1)\n" +
                 "                \"Crede firmiter et peca fortiter\"\n" +
                 "            WHEN (arg2 instanceof Object)\n" +
-                "                SET var (1 + 2 + 3)\n" +
-                "                (var + 4)\n" +
+                "                SET somevar (1 + 2 + 3)\n" +
+                "                (somevar + 4)\n" +
                 "            OTHERWISE\n" +
                 "                CALL template2 ({aa: 'bb', cc: 'dd'})\n" +
                 "                    h1\n" +
