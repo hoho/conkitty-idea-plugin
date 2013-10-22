@@ -1,58 +1,56 @@
 package com.hoho.conkitty;
 
 import com.hoho.conkitty.psi.ConkittyTypes;
-import com.intellij.lexer.FlexAdapter;
-import com.intellij.lexer.Lexer;
-import com.intellij.lexer.LexerPosition;
-import com.intellij.lexer.LookAheadLexer;
+import com.intellij.lexer.*;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.tree.TokenSet;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
-
-public final class ConkittyLexer extends LookAheadLexer {
+public class ConkittyLexer extends LookAheadLexer {
     public ConkittyLexer() {
         super(new FlexAdapter(new _ConkittyLexer() {
             @Override
             protected void readJavaScript(int state) throws IOException {
                 final int start = getTokenStart();
-                int braces = 1;
-                while (true) {
-                    final IElementType type = advance();
-                    if (type == ConkittyTypes.JAVASCRIPT) {
-                        switch (yycharat(0)) {
-                            case '(':
-                                braces++;
-                                break;
-                            case ')':
-                                braces--;
-                                break;
-                        }
+                int braces = yycharat(0) == '(' ? 2 : 1;
 
-                        if (braces == 0) {
-                            yypushback(1);
+                if (yycharat(0) != ')') {
+                    while (true) {
+                        final IElementType type = advance();
+
+                        if (type == null) {
                             break;
                         }
-                    } else {
-                        break;
+
+                        if (type == ConkittyTypes.JAVASCRIPT) {
+                            switch (yycharat(0)) {
+                                case '(':
+                                    braces++;
+                                    break;
+                                case ')':
+                                    braces--;
+                                    break;
+                            }
+
+                            if (braces == 0) {
+                                yypushback(1);
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
                     }
+                } else {
+                    yypushback(1);
                 }
+
                 setStart(start);
                 yybegin(state);
             }
         }));
     }
 
-    @Override
-    protected void lookAhead(Lexer baseLexer) {
-        IElementType type = baseLexer.getTokenType();
-
-        advanceAs(baseLexer, type);
-    }
-
-    private static void setState(Lexer baseLexer, int state) {
+    protected static void setState(Lexer baseLexer, int state) {
         ((FlexAdapter)baseLexer).getFlex().yybegin(state);
     }
 }

@@ -27,7 +27,7 @@ public class ConkittyParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public Lexer createLexer(Project project) {
-        return new ConkittyLexer();
+        return new ConkittyIndentingLexer();
     }
 
     @NotNull

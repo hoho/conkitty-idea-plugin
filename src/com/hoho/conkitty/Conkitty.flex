@@ -35,9 +35,19 @@ IDENTIFIER = [a-zA-Z_][a-zA-Z_0-9]*
 STRING = ('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 KEYWORD = "ATTR"|"CALL"|"CHOOSE"|"EACH"|"INSERT"|"SET"|"TEST"|"WITH"|"WHEN"|"OTHERWISE"|"ELSE"|"PAYLOAD"
 COMMENT = [\ \t\f]* ("//" [^\r\n]* | "/*" [^*] ~"*/" | "/*" "*"+ "/") [\ \t\f]*
-CSS = {IDENTIFIER}
+
+CSS_BEM_NAME = [a-zA-Z0-9-]+
+CSS_NAME = [a-zA-Z_0-9-]+
+CSS_CLASS = "." {CSS_NAME}
+CSS_ATTR = "[" {WHITE_SPACE}* {CSS_NAME} {WHITE_SPACE}* ("=" {WHITE_SPACE}* ({CSS_NAME} | {STRING}) {WHITE_SPACE}*)? "]"
+CSS_ID = "#" {CSS_NAME}
+CSS_BLOCK = "%" {CSS_BEM_NAME}
+CSS_ELEM = "(" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}* ")"
+CSS_MOD = "{" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}* ("=" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}*)? "}"
+CSS = {CRLF} {WHITE_SPACE} [a-z][a-z_0-9-]* ({CSS_CLASS} | {CSS_ATTR} | {CSS_ID} | {CSS_BLOCK} | {CSS_ELEM} | {CSS_MOD})*
+
 ATTR = @[a-zA-Z_-]+
-JAVASCRIPT = . | {WHITE_SPACE} | {CRLF} | {COMMENT} | {STRING} | {CSS} | {ATTR}
+JAVASCRIPT = . | {WHITE_SPACE} | {CRLF} | {COMMENT} | {STRING} | {ATTR} | {KEYWORD}
 
 
 %state IN_COMMENT
@@ -51,8 +61,10 @@ JAVASCRIPT = . | {WHITE_SPACE} | {CRLF} | {COMMENT} | {STRING} | {CSS} | {ATTR}
 %%
 
 <YYINITIAL>          {IDENTIFIER}                    { yybegin(IN_VAR_DECL); return TEMPLATE_NAME; }
+<IN_TEMPLATE>        {CRLF} {IDENTIFIER}             { yybegin(IN_VAR_DECL); return TEMPLATE_NAME; }
 
 <IN_VAR_DECL>        {IDENTIFIER}                    { return VARIABLE; }
+<IN_VAR_DECL>        {CSS}                           { yybegin(IN_TEMPLATE); return CSS; }
 <IN_VAR_DECL>        {CRLF}                          { yybegin(IN_TEMPLATE); return CRLF; }
 
 <IN_JAVASCRIPT>      {JAVASCRIPT}                    { yybegin(IN_JAVASCRIPT2); readJavaScript(afterJavaScript); return JAVASCRIPT; }

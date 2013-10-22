@@ -6,13 +6,11 @@
   <vendor email="dakota@brokenpipe.ru" url="https://github.com/hoho">Marat Abdullin</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <small>most HTML tags may be used</small>
+      Conkitty Template Engine Support
       ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <small>most HTML tags may be used</small>
+      Plugin is in early development stage.
       ]]>
   </change-notes>
 
@@ -21,9 +19,9 @@
 
   <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
        on how to target different products -->
-  <!-- uncomment to enable plugin in all products
+  <!-- uncomment to enable plugin in all products-->
   <depends>com.intellij.modules.lang</depends>
-  -->
+
 
   <application-components>
     <!-- Add your application components here -->
@@ -39,7 +37,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
       <fileTypeFactory implementation="com.hoho.conkitty.ConkittyFileTypeFactory" />
-      <lang.parserDefinition language="Conkitty" implementationClass="com.hoho.conkitty.ConkittyParserDefinition" />
+      <!--<lang.parserDefinition language="Conkitty" implementationClass="com.hoho.conkitty.ConkittyParserDefinition" />-->
       <lang.syntaxHighlighterFactory key="Conkitty" implementationClass="com.hoho.conkitty.ConkittySyntaxHighlighterFactory" />
   </extensions>
 </idea-plugin>
