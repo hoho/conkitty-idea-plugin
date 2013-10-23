@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ConkittyParserDefinition implements ParserDefinition {
     public static final TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
-    public static final TokenSet COMMENTS = TokenSet.create(ConkittyTypes.COMMENT);
+    public static final TokenSet COMMENTS = TokenSet.create(ConkittyTypes.COMMENT, ConkittyTypes.JAVASCRIPT);
 
     public static final IFileElementType FILE = new IFileElementType(Language.<ConkittyLanguage>findInstance(ConkittyLanguage.class));
 
