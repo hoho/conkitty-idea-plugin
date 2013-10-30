@@ -12,10 +12,6 @@ import org.jetbrains.annotations.NotNull;
 public class ConkittyJavascriptInjector implements LanguageInjector {
     public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host, @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
         if (host.getNode().getElementType() == ConkittyTypes.JAVASCRIPT) {
-            PsiElement ololo = host.getParent();
-            host.getC
-            while (ololo)
-
             final String text = host.getText();
             final Language language = ((LanguageFileType)FileTypeManager.getInstance().getFileTypeByExtension("js")).getLanguage();
             injectionPlacesRegistrar.addPlace(language, new TextRange(0, text.length()), "(function(){ return ", "})()");
