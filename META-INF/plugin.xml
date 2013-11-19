@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.hoho.conkitty</id>
   <name>Conkitty</name>
-  <version>0.0.0</version>
+  <version>0.0.1</version>
   <depends>com.intellij.modules.lang</depends>
   <vendor email="dakota@brokenpipe.ru" url="https://github.com/hoho">Marat Abdullin</vendor>
 
@@ -36,9 +36,9 @@
 
   <extensions defaultExtensionNs="com.intellij">
       <fileTypeFactory implementation="com.hoho.conkitty.ConkittyFileTypeFactory" />
-      <lang.parserDefinition language="Conkitty" implementationClass="com.hoho.conkitty.ConkittyParserDefinition" />
+      <!--<lang.parserDefinition language="Conkitty" implementationClass="com.hoho.conkitty.ConkittyParserDefinition" />-->
       <lang.syntaxHighlighterFactory key="Conkitty" implementationClass="com.hoho.conkitty.ConkittySyntaxHighlighterFactory" />
       <colorSettingsPage implementation="com.hoho.conkitty.ConkittyColorSettingsPage" />
-      <languageInjector implementation="com.hoho.conkitty.ConkittyJavascriptInjector" />
+      <!--<languageInjector implementation="com.hoho.conkitty.ConkittyJavascriptInjector" />-->
   </extensions>
 </idea-plugin>

@@ -25,15 +25,19 @@ import static com.hoho.conkitty.psi.ConkittyTypes.*;
   }
 
   private int afterJavaScript = YYINITIAL;
+  private int afterSomething = IN_TEMPLATE;
 
   protected abstract void readJavaScript(int state) throws java.io.IOException;
 %}
 
-CRLF = (\r | \n | \r\n)+
+
+CRLF = (\r|\n|\r\n)+
 WHITE_SPACE = [\ \t\f]+
-IDENTIFIER = [a-zA-Z_][a-zA-Z_0-9]*
-STRING = ('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
-KEYWORD = "ATTR"|"CALL"|"CHOOSE"|"EACH"|"INSERT"|"SET"|"TEST"|"WITH"|"WHEN"|"OTHERWISE"|"ELSE"|"PAYLOAD"
+TPL_NAME = [a-zA-Z][a-zA-Z0-9_-]*
+IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
+STRING = \"([^\"\r\n\\]|\\.)*\" | '([^'\r\n\\]|\\.)*'
+LONG_STRING = \"\"\"([^\"\r\n\\]|\\.)*\"\"\" | '''([^'\r\n\\]|\\.)*'''
+KEYWORD = "ATTR"|"CALL"|"CHOOSE"|"EACH"|"SET"|"TEST"|"WITH"|"WHEN"|"OTHERWISE"|"ELSE"|"PAYLOAD"|"MEM"
 COMMENT = [\ \t\f]* ("//" [^\r\n]* | "/*" [^*] ~"*/" | "/*" "*"+ "/") [\ \t\f]*
 
 CSS_BEM_NAME = [a-zA-Z0-9-]+
@@ -44,51 +48,71 @@ CSS_ID = "#" {CSS_NAME}
 CSS_BLOCK = "%" {CSS_BEM_NAME}
 CSS_ELEM = "(" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}* ")"
 CSS_MOD = "{" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}* ("=" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}*)? "}"
-CSS = {CRLF} {WHITE_SPACE} [a-z][a-z_0-9-]* ({CSS_CLASS} | {CSS_ATTR} | {CSS_ID} | {CSS_BLOCK} | {CSS_ELEM} | {CSS_MOD})*
+CSS = [a-z][a-z_0-9-]* ({CSS_CLASS} | {CSS_ATTR} | {CSS_ID} | {CSS_BLOCK} | {CSS_ELEM} | {CSS_MOD})*
 
 ATTR = @[a-zA-Z_-]+
+
 JAVASCRIPT = . | {WHITE_SPACE} | {CRLF} | {COMMENT} | {STRING} | {ATTR} | {KEYWORD}
 
 
-%state IN_COMMENT
-%state IN_LONG_COMMENT
-%state IN_TEMPLATE
-%state IN_VAR_DECL
 %state IN_JAVASCRIPT
 %state IN_JAVASCRIPT2
+%state IN_UJAVASCRIPT
+%state IN_UJAVASCRIPT2
+%state IN_TEMPLATE
+%state IN_VAR_DECL
 %state IN_CALL
+%state IN_BAD
+%state AFTER_SOMETHING
 
 %%
 
-<YYINITIAL>          {IDENTIFIER}                    { yybegin(IN_VAR_DECL); return TEMPLATE_NAME; }
-<IN_TEMPLATE>        {CRLF} {IDENTIFIER}             { yybegin(IN_VAR_DECL); return TEMPLATE_NAME; }
+<IN_BAD>             [^\r\n]+                        { return com.intellij.psi.TokenType.BAD_CHARACTER; }
 
-<IN_VAR_DECL>        {IDENTIFIER}                    { return VARIABLE; }
-<IN_VAR_DECL>        {CSS}                           { yybegin(IN_TEMPLATE); return CSS; }
-<IN_VAR_DECL>        {CRLF}                          { yybegin(IN_TEMPLATE); return CRLF; }
+<YYINITIAL>          {TPL_NAME}                      { yybegin(IN_VAR_DECL); return TEMPLATE_NAME; }
+<YYINITIAL>          {WHITE_SPACE}                   { yybegin(IN_TEMPLATE); return WHITE_SPACE; }
+
+<AFTER_SOMETHING>    {WHITE_SPACE}                   { yybegin(afterSomething); return WHITE_SPACE; }
+
+<IN_TEMPLATE,
+ IN_VAR_DECL>        {STRING} | {LONG_STRING}        { afterSomething = yystate(); yybegin(AFTER_SOMETHING); return STRING; }
 
 <IN_JAVASCRIPT>      {JAVASCRIPT}                    { yybegin(IN_JAVASCRIPT2); readJavaScript(afterJavaScript); return JAVASCRIPT; }
 <IN_JAVASCRIPT2>     {JAVASCRIPT}                    { return JAVASCRIPT; }
-                     "("                             { afterJavaScript = yystate(); yybegin(IN_JAVASCRIPT); return JAVASCRIPT_BEGIN; }
-                     ")"                             { return JAVASCRIPT_END; }
+
+<IN_UJAVASCRIPT>     {JAVASCRIPT}                    { yybegin(IN_UJAVASCRIPT2); readJavaScript(afterJavaScript); return JAVASCRIPT; }
+<IN_UJAVASCRIPT2>    {JAVASCRIPT}                    { return JAVASCRIPT; }
+
+<IN_TEMPLATE,
+ IN_VAR_DECL,
+ IN_CALL>            "((("                           { afterJavaScript = yystate(); yybegin(IN_UJAVASCRIPT); return JAVASCRIPT_BEGIN; }
+
+<IN_TEMPLATE,
+ IN_VAR_DECL,
+ IN_CALL>            "("                             { afterJavaScript = yystate(); yybegin(IN_JAVASCRIPT); return JAVASCRIPT_BEGIN; }
+
+<IN_TEMPLATE,
+ IN_VAR_DECL>        ")))"                           { return JAVASCRIPT_END; }
+<IN_CALL>            ")))"                           { yybegin(IN_TEMPLATE); return JAVASCRIPT_END; }
+
+<IN_TEMPLATE,
+ IN_VAR_DECL>        ")"                             { return JAVASCRIPT_END; }
+<IN_CALL>            ")"                             { yybegin(IN_TEMPLATE); return JAVASCRIPT_END; }
+
+<IN_VAR_DECL>        {IDENTIFIER}                    { return VARIABLE; }
+
+<IN_TEMPLATE>        "CALL"                          { afterSomething = IN_CALL; yybegin(AFTER_SOMETHING); return KEYWORD; }
+<IN_CALL>            {TPL_NAME}                      { yybegin(IN_TEMPLATE); return TEMPLATE_NAME; }
+
+<IN_TEMPLATE>        "EACH" | "SET" | "WITH"         { afterSomething = IN_VAR_DECL; yybegin(AFTER_SOMETHING); return KEYWORD; }
+
+<IN_TEMPLATE>        {KEYWORD}                       { afterSomething = yystate(); yybegin(AFTER_SOMETHING); return KEYWORD; }
+
+<IN_TEMPLATE>        {CSS}                           { afterSomething = yystate(); yybegin(AFTER_SOMETHING); return CSS; }
+<IN_TEMPLATE>        {ATTR}                          { afterSomething = yystate(); yybegin(AFTER_SOMETHING); return CSS; }
 
                      {COMMENT}                       { return COMMENT; }
 
-                     {STRING}                        { return STRING; }
-
-                     "CALL"                          { yybegin(IN_CALL); return KEYWORD; }
-<IN_CALL>            {IDENTIFIER}                    { yybegin(IN_TEMPLATE); return TEMPLATE_NAME; }
-
-                     "EACH"                          { yybegin(IN_VAR_DECL); return KEYWORD; }
-                     "SET"                           { yybegin(IN_VAR_DECL); return KEYWORD; }
-                     "WITH"                          { yybegin(IN_VAR_DECL); return KEYWORD; }
-
-
-                     {KEYWORD}                       { return KEYWORD; }
-
-<IN_TEMPLATE>        {CSS}                           { return CSS; }
-<IN_TEMPLATE>        {ATTR}                          { return CSS; }
-
-                     {CRLF}                          { return CRLF; }
+                     {CRLF}                          { yybegin(YYINITIAL); return CRLF; }
                      {WHITE_SPACE}                   { return WHITE_SPACE; }
-                     .                               { return com.intellij.psi.TokenType.BAD_CHARACTER; }
+                     .                               { yybegin(IN_BAD); return com.intellij.psi.TokenType.BAD_CHARACTER; }
