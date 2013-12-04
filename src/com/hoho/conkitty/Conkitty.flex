@@ -37,7 +37,7 @@ TPL_NAME = [a-zA-Z][a-zA-Z0-9_-]*
 IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 STRING = \"([^\"\r\n\\]|\\.)*\" | '([^'\r\n\\]|\\.)*'
 LONG_STRING = \"\"\"([^\"\r\n\\]|\\.)*\"\"\" | '''([^'\r\n\\]|\\.)*'''
-KEYWORD = "ATTR"|"CALL"|"CHOOSE"|"EACH"|"SET"|"TEST"|"WITH"|"WHEN"|"OTHERWISE"|"ELSE"|"PAYLOAD"|"MEM"
+KEYWORD = "ACT"|"ATTR"|"CALL"|"CHOOSE"|"EACH"|"SET"|"TEST"|"WITH"|"WHEN"|"OTHERWISE"|"ELSE"|"PAYLOAD"|"MEM"
 COMMENT = [\ \t\f]* ("//" [^\r\n]* | "/*" [^*] ~"*/" | "/*" "*"+ "/") [\ \t\f]*
 
 CSS_BEM_NAME = [a-zA-Z0-9-]+
