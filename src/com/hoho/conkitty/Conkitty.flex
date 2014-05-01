@@ -41,7 +41,7 @@ LONG_COMMENT = "/*" !([^]* "*/" [^]*) "*/"?
 STRING = \"([^\"\r\n\\]|\\.)*\" | '([^'\r\n\\]|\\.)*' | \"\"\"([^\"\r\n\\]|\\.)*\"\"\" | '''([^'\r\n\\]|\\.)*'''
 
 TPL_NAME = (([a-zA-Z0-9_-]*(\:\:)?[a-zA-Z0-9_-]+)|([a-zA-Z0-9_-]+\:\:))
-TPL_NS_NAME = ([a-zA-Z0-9_-]?\:\:[a-zA-Z0-9_-]+)
+TPL_NS_NAME = ([a-zA-Z0-9_-]*\:\:[a-zA-Z0-9_-]+)
 JS_NAME = [a-zA-Z_][a-zA-Z0-9_]*
 CMD_NAME = "AS"|"ATTR"|"CHOOSE"|"EACH"|"ELSE"|"EXCEPT"|"MEM"|"OTHERWISE"|"PAYLOAD"|"SET"|"TEST"|"TRIGGER"|"WHEN"|"WITH"
 
