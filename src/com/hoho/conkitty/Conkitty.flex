@@ -6,6 +6,8 @@ import static com.hoho.conkitty.psi.ConkittyTypes.*;
 
 %%
 
+%line
+%column
 %class _ConkittyLexer
 %abstract
 %implements FlexLexer
@@ -20,99 +22,104 @@ import static com.hoho.conkitty.psi.ConkittyTypes.*;
     this((java.io.Reader)null);
   }
 
+  public int yycolumn = 0;
+  public int yyline = 0;
+
   public final void setStart(int start) {
     zzCurrentPos = zzStartRead = start;
   }
 
-  private int afterJavaScript = YYINITIAL;
-  private int afterSomething = IN_TEMPLATE;
-
-  protected abstract void readJavaScript(int state) throws java.io.IOException;
+  protected abstract void readJavaScript() throws java.io.IOException;
+  protected abstract void readMultilineJavaScript() throws java.io.IOException;
 %}
 
 
 CRLF = (\r|\n|\r\n)+
 WHITE_SPACE = [\ \t\f]+
-TPL_NAME = [a-zA-Z][a-zA-Z0-9_-]*
-IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
-STRING = \"([^\"\r\n\\]|\\.)*\" | '([^'\r\n\\]|\\.)*'
-LONG_STRING = \"\"\"([^\"\r\n\\]|\\.)*\"\"\" | '''([^'\r\n\\]|\\.)*'''
-KEYWORD = "ACT"|"ATTR"|"CALL"|"CHOOSE"|"EACH"|"SET"|"TEST"|"WITH"|"WHEN"|"OTHERWISE"|"ELSE"|"PAYLOAD"|"MEM"|"TRIGGER"
-COMMENT = [\ \t\f]* ("//" [^\r\n]* | "/*" [^*] ~"*/" | "/*" "*"+ "/") [\ \t\f]*
+COMMENT = "//" [^\r\n]*
+LONG_COMMENT = "/*" !([^]* "*/" [^]*) "*/"?
+STRING = \"([^\"\r\n\\]|\\.)*\" | '([^'\r\n\\]|\\.)*' | \"\"\"([^\"\r\n\\]|\\.)*\"\"\" | '''([^'\r\n\\]|\\.)*'''
+
+TPL_NAME = (([a-zA-Z0-9_-]*(\:\:)?[a-zA-Z0-9_-]+)|([a-zA-Z0-9_-]+\:\:))
+TPL_NS_NAME = ([a-zA-Z0-9_-]?\:\:[a-zA-Z0-9_-]+)
+JS_NAME = [a-zA-Z_][a-zA-Z0-9_]*
+CMD_NAME = "AS"|"ATTR"|"CHOOSE"|"EACH"|"ELSE"|"EXCEPT"|"MEM"|"OTHERWISE"|"PAYLOAD"|"SET"|"TEST"|"TRIGGER"|"WHEN"|"WITH"
+
+VARIABLE = "$" {JS_NAME}
 
 CSS_BEM_NAME = [a-zA-Z0-9-]+
 CSS_NAME = [a-zA-Z_0-9-]+
+
+CSS_TAG = [a-z][a-z0-9_-]*
 CSS_CLASS = "." {CSS_NAME}
-CSS_ATTR = "[" {WHITE_SPACE}* {CSS_NAME} {WHITE_SPACE}* ("=" {WHITE_SPACE}* ({CSS_NAME} | {STRING}) {WHITE_SPACE}*)? "]"
 CSS_ID = "#" {CSS_NAME}
-CSS_BLOCK = "%" {CSS_BEM_NAME}
-CSS_ELEM = "(" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}* ")"
-CSS_MOD = "{" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}* ("=" {WHITE_SPACE}* {CSS_BEM_NAME} {WHITE_SPACE}*)? "}"
-CSS = [a-z][a-z_0-9-]* ({CSS_CLASS} | {CSS_ATTR} | {CSS_ID} | {CSS_BLOCK} | {CSS_ELEM} | {CSS_MOD})*
+CSS_PSEUDO = ":" {CSS_NAME} "("
 
-ATTR = @[a-zA-Z_-]+
+CSS_BEM = "%" {CSS_BEM_NAME} ("(" {CSS_BEM_NAME} ")")?
 
-JAVASCRIPT = . | {WHITE_SPACE} | {CRLF} | {COMMENT} | {STRING} | {ATTR} | {KEYWORD}
+ATTR = @ {CSS_NAME}
+INCLUDE = "&" {STRING}
 
 
-%state IN_JAVASCRIPT
-%state IN_JAVASCRIPT2
-%state IN_UJAVASCRIPT
-%state IN_UJAVASCRIPT2
 %state IN_TEMPLATE
-%state IN_VAR_DECL
+%state AFTER_CALL
 %state IN_CALL
-%state IN_BAD
-%state AFTER_SOMETHING
+%state IN_COMMENT
+%state NO_JS
+%state MULTILINE_JS
 
 %%
 
-<IN_BAD>             [^\r\n]+                        { return com.intellij.psi.TokenType.BAD_CHARACTER; }
+<YYINITIAL>          {TPL_NAME}                      { yybegin(IN_TEMPLATE); return TEMPLATE_NAME; }
+<YYINITIAL>          {WHITE_SPACE}                   { yybegin(IN_TEMPLATE); return com.intellij.psi.TokenType.WHITE_SPACE; }
 
-<YYINITIAL>          {TPL_NAME}                      { yybegin(IN_VAR_DECL); return TEMPLATE_NAME; }
-<YYINITIAL>          {WHITE_SPACE}                   { yybegin(IN_TEMPLATE); return WHITE_SPACE; }
+                     {LONG_COMMENT}                  { return COMMENT; }
 
-<AFTER_SOMETHING>    {WHITE_SPACE}                   { yybegin(afterSomething); return WHITE_SPACE; }
+                     "JS"                            { yybegin(MULTILINE_JS); return COMMAND_NAME; }
+<MULTILINE_JS>       [^]*                            { readMultilineJavaScript(); return JAVASCRIPT; }
 
-<IN_TEMPLATE,
- IN_VAR_DECL>        {STRING} | {LONG_STRING}        { afterSomething = yystate(); yybegin(AFTER_SOMETHING); return STRING; }
+                     "CALL"                          { yybegin(AFTER_CALL); return COMMAND_NAME; }
+                     {TPL_NS_NAME}                   { yybegin(IN_CALL); return TEMPLATE_NAME; }
 
-<IN_JAVASCRIPT>      {JAVASCRIPT}                    { yybegin(IN_JAVASCRIPT2); readJavaScript(afterJavaScript); return JAVASCRIPT; }
-<IN_JAVASCRIPT2>     {JAVASCRIPT}                    { return JAVASCRIPT; }
+<AFTER_CALL>         {TPL_NAME}                      { yybegin(IN_CALL); return TEMPLATE_NAME; }
+<IN_CALL>            {JS_NAME}                       { return VARIABLE; }
 
-<IN_UJAVASCRIPT>     {JAVASCRIPT}                    { yybegin(IN_UJAVASCRIPT2); readJavaScript(afterJavaScript); return JAVASCRIPT; }
-<IN_UJAVASCRIPT2>    {JAVASCRIPT}                    { return JAVASCRIPT; }
+                     {CMD_NAME}                      { return COMMAND_NAME; }
 
-<IN_TEMPLATE,
- IN_VAR_DECL,
- IN_CALL>            "((("                           { afterJavaScript = yystate(); yybegin(IN_UJAVASCRIPT); return JAVASCRIPT_BEGIN; }
+                     {VARIABLE}                      { return VARIABLE; }
 
-<IN_TEMPLATE,
- IN_VAR_DECL,
- IN_CALL>            "("                             { afterJavaScript = yystate(); yybegin(IN_JAVASCRIPT); return JAVASCRIPT_BEGIN; }
+                     {CSS_TAG}                       { return CSS_TAG; }
+                     {CSS_CLASS}                     { return CSS_CLASS; }
+                     {CSS_ID}                        { return CSS_ID; }
 
-<IN_TEMPLATE,
- IN_VAR_DECL>        ")))"                           { return JAVASCRIPT_END; }
-<IN_CALL>            ")))"                           { yybegin(IN_TEMPLATE); return JAVASCRIPT_END; }
+                     {CSS_PSEUDO}                    { yypushback(1); yybegin(NO_JS); return CSS_IF; }
 
-<IN_TEMPLATE,
- IN_VAR_DECL>        ")"                             { return JAVASCRIPT_END; }
-<IN_CALL>            ")"                             { yybegin(IN_TEMPLATE); return JAVASCRIPT_END; }
+                     {CSS_BEM}                       { return CSS_CLASS; }
 
-<IN_VAR_DECL>        {IDENTIFIER}                    { return VARIABLE; }
+                     {ATTR}                          { return ATTR; }
 
-<IN_TEMPLATE>        "CALL"                          { afterSomething = IN_CALL; yybegin(AFTER_SOMETHING); return KEYWORD; }
-<IN_CALL>            {TPL_NAME}                      { yybegin(IN_TEMPLATE); return TEMPLATE_NAME; }
+                     {INCLUDE}                       { return INCLUDE; }
 
-<IN_TEMPLATE>        "EACH" | "SET" | "WITH"         { afterSomething = IN_VAR_DECL; yybegin(AFTER_SOMETHING); return KEYWORD; }
+                     "["                             { return LSBRACKET; }
+                     "]"                             { return RSBRACKET; }
 
-<IN_TEMPLATE>        {KEYWORD}                       { afterSomething = yystate(); yybegin(AFTER_SOMETHING); return KEYWORD; }
+                     "{"                             { return LCBRACKET; }
+                     "}"                             { return RCBRACKET; }
 
-<IN_TEMPLATE>        {CSS}                           { afterSomething = yystate(); yybegin(AFTER_SOMETHING); return CSS; }
-<IN_TEMPLATE>        {ATTR}                          { afterSomething = yystate(); yybegin(AFTER_SOMETHING); return CSS; }
+                     {STRING}                        { return STRING; }
+<NO_JS>              "("                             { yybegin(IN_TEMPLATE); return LBRACKET; }
+                     "("                             { readJavaScript(); return JAVASCRIPT; }
+                     ")"                             { return RBRACKET; }
+
+                     "="                             { return RET_MAKER; }
+                     "+"                             { return CSS_CLASS; }
+                     "-"                             { return CSS_CLASS; }
+                     "^"                             { return NODE_APPENDER; }
+
+                     ","                             { return COMMA; }
 
                      {COMMENT}                       { return COMMENT; }
+                     {WHITE_SPACE}                   { return com.intellij.psi.TokenType.WHITE_SPACE; }
 
                      {CRLF}                          { yybegin(YYINITIAL); return CRLF; }
-                     {WHITE_SPACE}                   { return WHITE_SPACE; }
-                     .                               { yybegin(IN_BAD); return com.intellij.psi.TokenType.BAD_CHARACTER; }
+                     .                               { return com.intellij.psi.TokenType.BAD_CHARACTER; }

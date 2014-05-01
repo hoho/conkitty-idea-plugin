@@ -13,14 +13,18 @@ import java.util.Map;
 
 public class ConkittyColorSettingsPage implements ColorSettingsPage {
     private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
-            new AttributesDescriptor("Keyword", ConkittySyntaxHighlighter.KEYWORD),
+            new AttributesDescriptor("Command name", ConkittySyntaxHighlighter.COMMAND_NAME),
             new AttributesDescriptor("Template name", ConkittySyntaxHighlighter.TEMPLATE_NAME),
             new AttributesDescriptor("Tag", ConkittySyntaxHighlighter.TAG),
             new AttributesDescriptor("Variable", ConkittySyntaxHighlighter.VARIABLE_NAME),
             new AttributesDescriptor("String", ConkittySyntaxHighlighter.STRING),
             new AttributesDescriptor("JavaScript", ConkittySyntaxHighlighter.JAVASCRIPT),
             new AttributesDescriptor("Comment", ConkittySyntaxHighlighter.COMMENT),
-            new AttributesDescriptor("Bad character", ConkittySyntaxHighlighter.BAD_CHARACTER),
+            new AttributesDescriptor("Comma", ConkittySyntaxHighlighter.COMMA),
+            new AttributesDescriptor("Bracket", ConkittySyntaxHighlighter.BRACKET),
+            new AttributesDescriptor("Conditional", ConkittySyntaxHighlighter.PSEUDO),
+            new AttributesDescriptor("Assign", ConkittySyntaxHighlighter.ASSIGN),
+            new AttributesDescriptor("Dependency", ConkittySyntaxHighlighter.INCLUDE),
     };
 
     @Nullable
@@ -39,13 +43,13 @@ public class ConkittyColorSettingsPage implements ColorSettingsPage {
     @Override
     public String getDemoText() {
         return "// Hello from Conkitty\n" +
-                "template1 arg1 arg2\n" +
-                "    div.hello[what=\"world\"]\n" +
+                "template1 $arg1 $arg2[\"mimimi\"]\n" +
+                "    div.hello[what=\"world\"]:if($arg2, .yes)\n" +
                 "        CHOOSE\n" +
-                "            WHEN (arg1)\n" +
+                "            WHEN $arg1\n" +
                 "                \"Crede firmiter et peca fortiter\"\n" +
                 "            WHEN (arg2 instanceof Object)\n" +
-                "                SET somevar (1 + 2 + 3)\n" +
+                "                SET $somevar (1 + 2 + 3)\n" +
                 "                (somevar + 4)\n" +
                 "            OTHERWISE\n" +
                 "                CALL template2 ({aa: 'bb', cc: 'dd'})\n" +
@@ -53,16 +57,18 @@ public class ConkittyColorSettingsPage implements ColorSettingsPage {
                 "                        \"Hello world\"\n" +
                 "\n" +
                 "/* Another comment */\n" +
-                "template2 data\n" +
-                "    PAYLOAD\n" +
-                "    ul\n" +
-                "        EACH key val (data)\n" +
-                "            li\n" +
-                "                (key)\n" +
-                "                \" — \"\n" +
-                "                (val)\n" +
+                "template2 $data\n" +
+                "    &\"file.css\"\n" +
                 "\n" +
-                "!Bad input";
+                "    PAYLOAD\n" +
+                "    ul AS $node\n" +
+                "        EACH $key $val $data\n" +
+                "            li\n" +
+                "                $key\n" +
+                "                \" — \"\n" +
+                "                $val\n" +
+                "    =JS\n" +
+                "        {list: node}";
     }
 
     @Nullable

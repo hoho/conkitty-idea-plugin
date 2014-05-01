@@ -10,6 +10,8 @@ public class ConkittyTokenType extends IElementType {
         super(debugName, ConkittyLanguage.INSTANCE);
     }
 
+    public int indent = 0;
+
     @Override
     public String toString() {
         return "ConkittyTokenType." + super.toString();
