@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class ConkittyColorSettingsPage implements ColorSettingsPage {
     private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
-            new AttributesDescriptor("Command name", ConkittySyntaxHighlighter.COMMAND_NAME),
-            new AttributesDescriptor("Template name", ConkittySyntaxHighlighter.TEMPLATE_NAME),
+            new AttributesDescriptor("Command", ConkittySyntaxHighlighter.COMMAND_NAME),
+            new AttributesDescriptor("Template", ConkittySyntaxHighlighter.TEMPLATE_NAME),
             new AttributesDescriptor("Tag", ConkittySyntaxHighlighter.TAG),
             new AttributesDescriptor("Variable", ConkittySyntaxHighlighter.VARIABLE_NAME),
             new AttributesDescriptor("String", ConkittySyntaxHighlighter.STRING),
@@ -48,15 +48,16 @@ public class ConkittyColorSettingsPage implements ColorSettingsPage {
                 "        CHOOSE\n" +
                 "            WHEN $arg1\n" +
                 "                \"Crede firmiter et peca fortiter\"\n" +
-                "            WHEN (arg2 instanceof Object)\n" +
+                "            WHEN ($arg2 instanceof Object)\n" +
                 "                SET $somevar (1 + 2 + 3)\n" +
-                "                (somevar + 4)\n" +
+                "                ($somevar + 4)\n" +
                 "            OTHERWISE\n" +
                 "                CALL template2 ({aa: 'bb', cc: 'dd'})\n" +
                 "                    h1\n" +
                 "                        \"Hello world\"\n" +
                 "\n" +
-                "/* Another comment */\n" +
+                "/* Another\n" +
+                "     comment */\n" +
                 "template2 $data\n" +
                 "    &\"file.css\"\n" +
                 "\n" +
@@ -67,8 +68,8 @@ public class ConkittyColorSettingsPage implements ColorSettingsPage {
                 "                $key\n" +
                 "                \" — \"\n" +
                 "                $val\n" +
-                "    =JS\n" +
-                "        {list: node}";
+                "    EXPOSE JS\n" +
+                "        {list: $node}";
     }
 
     @Nullable

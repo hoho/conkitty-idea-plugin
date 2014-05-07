@@ -79,7 +79,7 @@ public class ConkittySyntaxHighlighter extends SyntaxHighlighterBase {
             return BRACKETS;
         } else if (tokenType.equals(ConkittyTypes.CSS_IF)) {
             return PSEUDOS;
-        } else if (tokenType.equals(ConkittyTypes.RET_MAKER)) {
+        } else if (tokenType.equals(ConkittyTypes.ASSIGN)) {
             return ASSIGNS;
         } else if (tokenType.equals(ConkittyTypes.INCLUDE)) {
             return INCLUDES;

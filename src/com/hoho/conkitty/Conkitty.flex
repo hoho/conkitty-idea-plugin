@@ -6,8 +6,6 @@ import static com.hoho.conkitty.psi.ConkittyTypes.*;
 
 %%
 
-%line
-%column
 %class _ConkittyLexer
 %abstract
 %implements FlexLexer
@@ -22,14 +20,14 @@ import static com.hoho.conkitty.psi.ConkittyTypes.*;
     this((java.io.Reader)null);
   }
 
-  public int yycolumn = 0;
-  public int yyline = 0;
+  public int multilineJavaScriptIndent;
 
   public final void setStart(int start) {
     zzCurrentPos = zzStartRead = start;
   }
 
   protected abstract void readJavaScript() throws java.io.IOException;
+  protected abstract void setMultilineJavaScriptIndent() throws java.io.IOException;
   protected abstract void readMultilineJavaScript() throws java.io.IOException;
 %}
 
@@ -43,7 +41,7 @@ STRING = \"([^\"\r\n\\]|\\.)*\" | '([^'\r\n\\]|\\.)*' | \"\"\"([^\"\r\n\\]|\\.)*
 TPL_NAME = (([a-zA-Z0-9_-]*(\:\:)?[a-zA-Z0-9_-]+)|([a-zA-Z0-9_-]+\:\:))
 TPL_NS_NAME = ([a-zA-Z0-9_-]*\:\:[a-zA-Z0-9_-]+)
 JS_NAME = [a-zA-Z_][a-zA-Z0-9_]*
-CMD_NAME = "AS"|"ATTR"|"CHOOSE"|"EACH"|"ELSE"|"EXCEPT"|"MEM"|"OTHERWISE"|"PAYLOAD"|"SET"|"TEST"|"TRIGGER"|"WHEN"|"WITH"
+CMD_NAME = "AS"|"ATTR"|"CHOOSE"|"EACH"|"ELSE"|"EXCEPT"|"EXPOSE"|"MEM"|"OTHERWISE"|"PAYLOAD"|"SET"|"TEST"|"TRIGGER"|"WHEN"|"WITH"
 
 VARIABLE = "$" {JS_NAME}
 
@@ -60,6 +58,7 @@ CSS_BEM = "%" {CSS_BEM_NAME} ("(" {CSS_BEM_NAME} ")")?
 ATTR = @ {CSS_NAME}
 INCLUDE = "&" {STRING}
 
+M_JS = {WHITE_SPACE} ("JS"|"EXPOSE" {WHITE_SPACE} "JS")
 
 %state IN_TEMPLATE
 %state AFTER_CALL
@@ -67,6 +66,7 @@ INCLUDE = "&" {STRING}
 %state IN_COMMENT
 %state NO_JS
 %state MULTILINE_JS
+%state IN_JS
 
 %%
 
@@ -75,13 +75,14 @@ INCLUDE = "&" {STRING}
 
                      {LONG_COMMENT}                  { return COMMENT; }
 
-                     "JS"                            { yybegin(MULTILINE_JS); return COMMAND_NAME; }
-<MULTILINE_JS>       [^]*                            { readMultilineJavaScript(); return JAVASCRIPT; }
+<YYINITIAL>          {M_JS}                          { yybegin(MULTILINE_JS); setMultilineJavaScriptIndent(); return COMMAND_NAME; }
+<MULTILINE_JS>       {CRLF} [^]*                     { readMultilineJavaScript(); return JAVASCRIPT; }
 
                      "CALL"                          { yybegin(AFTER_CALL); return COMMAND_NAME; }
                      {TPL_NS_NAME}                   { yybegin(IN_CALL); return TEMPLATE_NAME; }
 
 <AFTER_CALL>         {TPL_NAME}                      { yybegin(IN_CALL); return TEMPLATE_NAME; }
+<IN_CALL>            {CMD_NAME}                      { return COMMAND_NAME; }
 <IN_CALL>            {JS_NAME}                       { return VARIABLE; }
 
                      {CMD_NAME}                      { return COMMAND_NAME; }
@@ -111,7 +112,7 @@ INCLUDE = "&" {STRING}
                      "("                             { readJavaScript(); return JAVASCRIPT; }
                      ")"                             { return RBRACKET; }
 
-                     "="                             { return RET_MAKER; }
+                     "="                             { return ASSIGN; }
                      "+"                             { return CSS_CLASS; }
                      "-"                             { return CSS_CLASS; }
                      "^"                             { return NODE_APPENDER; }
