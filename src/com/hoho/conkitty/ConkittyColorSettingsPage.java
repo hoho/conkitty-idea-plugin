@@ -43,7 +43,7 @@ public class ConkittyColorSettingsPage implements ColorSettingsPage {
     @Override
     public String getDemoText() {
         return "// Hello from Conkitty\n" +
-                "template1 $arg1 $arg2[\"mimimi\"]\n" +
+                "template1 $arg1 $arg2=\"mimimi\"\n" +
                 "    div.hello[what=\"world\"]:if($arg2, .yes)\n" +
                 "        CHOOSE\n" +
                 "            WHEN $arg1\n" +
@@ -69,7 +69,7 @@ public class ConkittyColorSettingsPage implements ColorSettingsPage {
                 "                \" — \"\n" +
                 "                $val\n" +
                 "    EXPOSE JS\n" +
-                "        {list: $node}";
+                "        return {list: $node}";
     }
 
     @Nullable
